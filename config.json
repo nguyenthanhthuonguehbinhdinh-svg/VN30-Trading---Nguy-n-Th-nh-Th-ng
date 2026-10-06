@@ -1,0 +1,43 @@
+{
+  "initial_capital": 100000000,
+  "live_start_date": null,
+  "backtest_start": "2022-01-01",
+
+  "fees": {
+    "buy_fee": 0.0015,
+    "sell_fee": 0.0015,
+    "sell_tax": 0.001
+  },
+  "lot_size": 100,
+  "settlement_days": 2,
+  "max_positions": 5,
+  "top_n_signals": 5,
+  "use_preview_decisions": true,
+
+  "breakout": {
+    "donchian": 55,
+    "ma_fast": 10,
+    "ma_slow": 50,
+    "market_ma": 50,
+    "hard_stop": 0.08,
+    "atr_period": 14,
+    "atr_mult": 4.0,
+    "max_hold_days": 365,
+    "roc_period": 60
+  },
+  "sideway": {
+    "rsi_period": 14,
+    "rsi_buy": 30,
+    "market_ma": 200,
+    "flat_gap": 0.05,
+    "take_profit": 0.065,
+    "stop_loss": 0.05
+  },
+
+  "vn30_fallback": [
+    "ACB", "BCM", "BID", "CTG", "DGC", "FPT", "GAS", "GVR", "HDB", "HPG",
+    "LPB", "MBB", "MSN", "MWG", "PLX", "SAB", "SHB", "SSB", "SSI", "STB",
+    "TCB", "TPB", "VCB", "VHM", "VIB", "VIC", "VJC", "VNM", "VPB", "VRE"
+  ],
+  "vn30_override": null
+}

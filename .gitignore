@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+state/demo_portfolio.json
+.venv/
