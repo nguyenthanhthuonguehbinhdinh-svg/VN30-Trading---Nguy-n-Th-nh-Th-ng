@@ -31,7 +31,8 @@
     try { t = localStorage.getItem("theme"); } catch {}
     if (t) document.documentElement.dataset.theme = t;
     $("#theme-btn").onclick = () => {
-      const cur = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+      const t0 = document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      const cur = t0 === "light" ? "dark" : "light";
       document.documentElement.dataset.theme = cur;
       try { localStorage.setItem("theme", cur); } catch {}
       renderCharts();
@@ -219,10 +220,10 @@
     if (!src || src.length < 2) { el.innerHTML = `<div class="empty" style="margin-top:120px">Chưa đủ dữ liệu — đường vốn live sẽ xuất hiện sau vài phiên. Xem tab Backtest để thấy lịch sử.</div>`; return; }
     const ch = baseChart(el, { priceFormatter: (p) => p.toFixed(1) });
     const n0 = src[0].nav, v0 = (src.find((x) => x.vnindex) || {}).vnindex;
-    const a = ch.addAreaSeries({ lineColor: css("--up"), topColor: css("--up") + "40", bottomColor: css("--up") + "00", lineWidth: 2, title: "Danh mục" });
+    const a = ch.addAreaSeries({ lineColor: css("--c-nav"), topColor: css("--c-nav") + "55", bottomColor: css("--c-nav") + "00", lineWidth: 2, title: "Danh mục" });
     a.setData(src.map((x) => ({ time: x.date, value: (x.nav / n0) * 100 })));
     if (v0) {
-      const b = ch.addLineSeries({ color: css("--muted"), lineWidth: 1.5, title: "VNINDEX" });
+      const b = ch.addLineSeries({ color: css("--c-vni"), lineWidth: 1.5, title: "VNINDEX" });
       b.setData(src.filter((x) => x.vnindex).map((x) => ({ time: x.date, value: (x.vnindex / v0) * 100 })));
     }
     const orders = S.eqSrc === "bt" ? [] : S.live.orders || [];
@@ -237,7 +238,7 @@
   // ------------------------------------------------------------ ALLOC + WATCH
   function renderAlloc() {
     const L = S.live, nav = L.nav || L.initial_capital;
-    const palette = ["#22c55e", "#38bdf8", "#a78bfa", "#f59e0b", "#f472b6"];
+    const palette = ["--c1", "--c2", "--c3", "--c4", "--c5"].map(css);
     const items = (L.positions || []).map((p, i) => ({ name: p.ticker, v: p.value, c: palette[i % 5], sub: STRAT[p.strategy] }));
     items.push({ name: "Tiền mặt", v: L.cash, c: css("--line-2"), sub: "" });
     let acc = 0;
@@ -418,10 +419,10 @@
     const h = S.bt?.nav_history || [];
     if (h.length < 2) return;
     const ch = baseChart($("#bt-chart"), { priceFormatter: (p) => mil(p) });
-    const a = ch.addAreaSeries({ lineColor: css("--up"), topColor: css("--up") + "40", bottomColor: css("--up") + "00", lineWidth: 2, title: "NAV" });
+    const a = ch.addAreaSeries({ lineColor: css("--c-nav"), topColor: css("--c-nav") + "55", bottomColor: css("--c-nav") + "00", lineWidth: 2, title: "NAV" });
     a.setData(h.map((x) => ({ time: x.date, value: x.nav })));
     const v0 = (h.find((x) => x.vnindex) || {}).vnindex, cap = S.bt.config.initial_capital;
-    if (v0) { const b = ch.addLineSeries({ color: css("--muted"), lineWidth: 1.5, title: "VNINDEX (quy đổi)" }); b.setData(h.filter((x) => x.vnindex).map((x) => ({ time: x.date, value: cap * x.vnindex / v0 }))); }
+    if (v0) { const b = ch.addLineSeries({ color: css("--c-vni"), lineWidth: 1.5, title: "VNINDEX (quy đổi)" }); b.setData(h.filter((x) => x.vnindex).map((x) => ({ time: x.date, value: cap * x.vnindex / v0 }))); }
     fit(ch);
     const dd = baseChart($("#bt-dd"), { priceFormatter: (p) => p.toFixed(0) + "%" });
     let peak = 0;
@@ -451,7 +452,7 @@
     const cs = ch.addCandlestickSeries({ upColor: css("--up"), downColor: css("--down"), wickUpColor: css("--up"), wickDownColor: css("--down"), borderVisible: false });
     cs.setData(c.d.map((d, i) => ({ time: d, open: c.open[i], high: c.high[i], low: c.low[i], close: c.close[i] })));
     const line = (key, color, w = 1.5, style = 0) => { const s = ch.addLineSeries({ color, lineWidth: w, lineStyle: style, priceLineVisible: false, lastValueVisible: false }); s.setData(c.d.map((d, i) => c[key]?.[i] == null ? null : { time: d, value: c[key][i] }).filter(Boolean)); };
-    line("ma10", "#f59e0b"); line("ma50", "#38bdf8"); line("hh55", "#a78bfa", 1, 2);
+    line("ma10", css("--c-ma10")); line("ma50", css("--c-ma50")); line("hh55", css("--c-hh"), 1, 2);
     const vol = ch.addHistogramSeries({ priceScaleId: "vol", priceFormat: { type: "volume" }, color: css("--line-2"), lastValueVisible: false, priceLineVisible: false });
     ch.priceScale("vol").applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
     vol.setData(c.d.map((d, i) => ({ time: d, value: c.volum?.[i] || 0, color: c.close[i] >= c.open[i] ? css("--up") + "55" : css("--down") + "55" })));
@@ -459,7 +460,7 @@
       const pl = (p, color, title) => p && cs.createPriceLine({ price: p, color, lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title });
       pl(pos.entry_price, css("--muted"), "Giá vốn"); pl(pos.exit_level, css("--down"), "Thoát"); pl(pos.take_profit, css("--up"), "Chốt lời");
     } else if (b.breakout_trigger) {
-      cs.createPriceLine({ price: b.breakout_trigger, color: "#a78bfa", lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: "Mốc Breakout" });
+      cs.createPriceLine({ price: b.breakout_trigger, color: css("--c-hh"), lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: "Mốc Breakout" });
     }
     const set = new Set(c.d);
     const mk = (S.live.orders || []).filter((o) => o.ticker === tk && set.has(o.date)).map((o) => ({ time: o.date, position: o.side === "MUA" ? "belowBar" : "aboveBar", color: o.side === "MUA" ? css("--up") : css("--down"), shape: o.side === "MUA" ? "arrowUp" : "arrowDown", text: `${o.side} ${vnd(o.price)}` }));
