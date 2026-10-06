@@ -1,0 +1,20 @@
+{
+ "start_date": "2026-10-06",
+ "initial_capital": 100000000,
+ "cash": 100000000.0,
+ "positions": {},
+ "trades": [],
+ "orders": [],
+ "nav_history": [
+  {
+   "date": "2026-10-06",
+   "nav": 100000000,
+   "cash": 100000000,
+   "invested": 0,
+   "n_pos": 0,
+   "vnindex": 1759.08
+  }
+ ],
+ "events": [],
+ "last_date": "2026-10-06"
+}
