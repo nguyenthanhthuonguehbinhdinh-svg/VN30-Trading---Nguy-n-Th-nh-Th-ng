@@ -1,0 +1,47 @@
+name: Daily VN30 update
+
+on:
+  schedule:
+    - cron: '17 7 * * 1-5'  # 14:17 giờ VN
+    - cron: '23 8 * * 1-5'  # 15:23 giờ VN
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Kiểm tra file
+        run: ls -R | head -50
+
+      - name: Cài thư viện
+        run: pip install -r requirements.txt
+
+      - name: Chạy engine
+        run: python -m engine.run --mode auto
+
+      - name: Lưu dữ liệu vào repo
+        run: |
+          git config user.name 'github-actions'
+          git config user.email 'github-actions@github.com'
+          git add -A
+          git commit -m "data" || true
+          git push
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .   # đổi thành thư mục chứa web nếu có, vd: site/
+      - uses: actions/deploy-pages@v4
