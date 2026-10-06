@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VN30 Quant Desk</title>
+<meta name="description" content="Dashboard theo dõi chiến lược Breakout + Sideway trên rổ VN30 với 100 triệu vốn giả lập.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230b1220'/><path d='M6 22l6-7 5 4 9-11' stroke='%2322c55e' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+</head>
+<body>
+<div id="demo-banner" class="banner hidden">⚠ ĐANG HIỂN THỊ DỮ LIỆU MÔ PHỎNG (demo) — không phải giá thật. Chạy GitHub Actions để lấy dữ liệu thật.</div>
+
+<header class="topbar">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" width="30" height="30"><rect width="32" height="32" rx="9" fill="var(--panel-2)"/><path d="M6 22l6-7 5 4 9-11" stroke="var(--up)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div>
+      <div class="brand-name">VN30 Quant Desk</div>
+      <div class="brand-sub">Breakout Donchian 55 · Sideway RSI 30 · 5 vị thế</div>
+    </div>
+  </div>
+  <div class="status">
+    <span id="st-session" class="pill">—</span>
+    <span id="st-updated" class="muted small">—</span>
+    <button id="theme-btn" class="icon-btn" title="Đổi giao diện sáng/tối">◐</button>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="card nav-card">
+      <div class="label">Giá trị tài sản ròng (NAV)</div>
+      <div class="nav-value mono" id="k-nav">—</div>
+      <div class="nav-sub">
+        <span id="k-ret" class="chip">—</span>
+        <span class="muted">so với vốn gốc <b id="k-cap">—</b> · từ <span id="k-start">—</span></span>
+      </div>
+      <div id="spark" class="spark"></div>
+    </div>
+    <div class="kpis">
+      <div class="card kpi"><div class="label">Lãi/lỗ phiên gần nhất</div><div class="kv mono" id="k-day">—</div><div class="ks" id="k-day-pct">—</div></div>
+      <div class="card kpi"><div class="label">VNINDEX cùng kỳ</div><div class="kv mono" id="k-bench">—</div><div class="ks" id="k-alpha">—</div></div>
+      <div class="card kpi"><div class="label">Tiền mặt</div><div class="kv mono" id="k-cash">—</div><div class="ks" id="k-cash-pct">—</div></div>
+      <div class="card kpi"><div class="label">Vị thế</div><div class="kv mono" id="k-pos">—</div><div class="slots" id="k-slots"></div></div>
+      <div class="card kpi"><div class="label">Sụt giảm tối đa</div><div class="kv mono" id="k-dd">—</div><div class="ks" id="k-dd-sub">từ đỉnh NAV</div></div>
+      <div class="card kpi"><div class="label">Tỷ lệ thắng</div><div class="kv mono" id="k-win">—</div><div class="ks" id="k-win-sub">—</div></div>
+    </div>
+  </section>
+
+  <!-- ACTION + MARKET -->
+  <section class="row-2">
+    <div class="card">
+      <div class="card-head">
+        <h2>Việc cần làm <span id="act-when" class="muted small"></span></h2>
+        <span id="act-badge" class="pill"></span>
+      </div>
+      <div id="actions"></div>
+      <div id="act-foot" class="muted small foot"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Bộ lọc thị trường</h2><span class="muted small">chỉ chặn lệnh mới</span></div>
+      <div id="market"></div>
+    </div>
+  </section>
+
+  <!-- TABS -->
+  <nav class="tabs" id="tabs">
+    <button data-tab="overview" class="active">Tổng quan</button>
+    <button data-tab="signals">Tín hiệu VN30</button>
+    <button data-tab="portfolio">Danh mục</button>
+    <button data-tab="history">Lịch sử giao dịch</button>
+    <button data-tab="backtest">Backtest</button>
+    <button data-tab="rules">Luật chiến lược</button>
+  </nav>
+
+  <section class="tab" id="tab-overview">
+    <div class="card">
+      <div class="card-head">
+        <h2>Hiệu quả danh mục vs VNINDEX</h2>
+        <div class="seg" id="eq-src"><button data-v="live" class="active">Live</button><button data-v="bt">Backtest</button></div>
+      </div>
+      <div id="eq-chart" class="chart-lg"></div>
+      <div class="legend"><span class="lg lg-nav"></span>Danh mục (quy đổi 100) <span class="lg lg-vni"></span>VNINDEX (quy đổi 100)</div>
+    </div>
+    <div class="row-2">
+      <div class="card">
+        <div class="card-head"><h2>Phân bổ tài sản</h2></div>
+        <div class="alloc"><div id="donut" class="donut"></div><div id="alloc-list" class="alloc-list"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>Sắp kích hoạt Breakout</h2><span class="muted small">gần mốc đỉnh 55 phiên nhất</span></div>
+        <div id="watch"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tab hidden" id="tab-signals">
+    <div class="card">
+      <div class="card-head">
+        <h2>Bảng tín hiệu VN30 <span id="sig-date" class="muted small"></span></h2>
+        <div class="seg" id="sig-filter">
+          <button data-v="ALL" class="active">Tất cả</button><button data-v="MUA">Mua</button><button data-v="BÁN">Bán</button><button data-v="GIỮ">Giữ</button><button data-v="CHỜ">Chờ</button>
+        </div>
+      </div>
+      <div class="table-wrap"><table id="sig-table" class="tbl"></table></div>
+      <div class="muted small foot">Bấm vào một mã để xem biểu đồ nến kèm MA10/MA50, đỉnh 55 phiên và các mốc cắt lỗ/chốt lời. “Mốc kích hoạt” là giá đóng cửa phiên tới cần đạt để có tín hiệu.</div>
+    </div>
+  </section>
+
+  <section class="tab hidden" id="tab-portfolio">
+    <div class="card">
+      <div class="card-head"><h2>Danh mục đang nắm giữ</h2><span class="muted small">lãi/lỗ ròng đã trừ phí mua + phí bán + thuế 0,1% nếu bán hôm nay</span></div>
+      <div id="positions"></div>
+    </div>
+  </section>
+
+  <section class="tab hidden" id="tab-history">
+    <div class="card">
+      <div class="card-head"><h2>Lệnh đã đóng</h2><span id="tr-sum" class="muted small"></span></div>
+      <div class="table-wrap tall"><table id="trades-table" class="tbl"></table></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Nhật ký khớp lệnh</h2></div>
+      <div class="table-wrap tall"><table id="orders-table" class="tbl"></table></div>
+    </div>
+  </section>
+
+  <section class="tab hidden" id="tab-backtest">
+    <div class="card">
+      <div class="card-head"><h2>Backtest <span id="bt-range" class="muted small"></span></h2><span class="muted small">cùng luật, cùng phí/thuế, khớp giá đóng cửa</span></div>
+      <div id="bt-metrics" class="metric-grid"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Đường vốn & Drawdown</h2></div>
+      <div id="bt-chart" class="chart-lg"></div>
+      <div id="bt-dd" class="chart-sm"></div>
+    </div>
+    <div class="row-2">
+      <div class="card"><div class="card-head"><h2>Theo chiến lược</h2></div><div id="bt-strat"></div></div>
+      <div class="card"><div class="card-head"><h2>Lý do thoát lệnh</h2></div><div id="bt-reason"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Lợi nhuận theo tháng</h2></div>
+      <div id="bt-monthly" class="table-wrap"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Toàn bộ lệnh backtest</h2></div>
+      <div class="table-wrap tall"><table id="bt-trades" class="tbl"></table></div>
+    </div>
+  </section>
+
+  <section class="tab hidden" id="tab-rules">
+    <div class="card prose" id="rules"></div>
+  </section>
+
+  <footer class="muted small">
+    Công cụ cá nhân để kiểm chứng chiến lược — không phải khuyến nghị đầu tư. Dữ liệu: <span id="ft-src">—</span>. Biểu đồ: <a href="https://www.tradingview.com/lightweight-charts/" target="_blank" rel="noopener" style="color:inherit">TradingView Lightweight Charts™</a>.
+  </footer>
+</main>
+
+<!-- modal biểu đồ mã -->
+<div id="modal" class="modal hidden">
+  <div class="modal-box card">
+    <div class="card-head">
+      <h2 id="m-title">—</h2>
+      <button class="icon-btn" id="m-close">✕</button>
+    </div>
+    <div id="m-stats" class="m-stats"></div>
+    <div id="m-chart" class="chart-lg"></div>
+    <div id="m-rsi" class="chart-sm"></div>
+    <div class="legend"><span class="lg lg-ma10"></span>MA10 <span class="lg lg-ma50"></span>MA50 <span class="lg lg-hh"></span>Đỉnh 55 phiên trước <span class="lg lg-lv"></span>Mốc thoát lệnh</div>
+  </div>
+</div>
+
+<script src="vendor/lightweight-charts.standalone.production.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
