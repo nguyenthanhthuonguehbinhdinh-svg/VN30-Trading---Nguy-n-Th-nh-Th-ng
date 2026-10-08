@@ -21,8 +21,16 @@
    "invested": 0,
    "n_pos": 0,
    "vnindex": 1753.39
+  },
+  {
+   "date": "2026-10-08",
+   "nav": 100000000,
+   "cash": 100000000,
+   "invested": 0,
+   "n_pos": 0,
+   "vnindex": 1738.97
   }
  ],
  "events": [],
- "last_date": "2026-10-07"
+ "last_date": "2026-10-08"
 }
