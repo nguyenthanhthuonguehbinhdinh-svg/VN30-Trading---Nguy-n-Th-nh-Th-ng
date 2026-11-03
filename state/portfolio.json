@@ -157,8 +157,24 @@
    "invested": 0,
    "n_pos": 0,
    "vnindex": 1741.62
+  },
+  {
+   "date": "2026-11-02",
+   "nav": 100000000,
+   "cash": 100000000,
+   "invested": 0,
+   "n_pos": 0,
+   "vnindex": 1710.72
+  },
+  {
+   "date": "2026-11-03",
+   "nav": 100000000,
+   "cash": 100000000,
+   "invested": 0,
+   "n_pos": 0,
+   "vnindex": 1699.62
   }
  ],
  "events": [],
- "last_date": "2026-10-30"
+ "last_date": "2026-11-03"
 }
